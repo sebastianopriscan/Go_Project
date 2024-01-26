@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+
+  client:
+    depends_on:
+      - server
+    build:
+      context: .
+      dockerfile: Client.dockerfile
+    deploy :
+      mode : replicated
+      replicas : ${CLIENT_REPLICAS:-2}
+    environment:
+      - BALANCER_PORT=${BALANCER_PORT:-3456}
+      - SERVER_NAME=server
+
+  server:
+    build:
+      context: .
+      dockerfile: Server.dockerfile
+    deploy :
+      mode : replicated
+      replicas : ${SERVERS_NUM:-2}
+    environment:
+      - "PORT=${BALANCER_PORT:-3456}"
+    ports:
+      - "${BALANCER_PORT:-3456}"
